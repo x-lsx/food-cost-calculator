@@ -25,8 +25,6 @@ class BusinessRepository:
         result = await self.db.execute(select(Business).where(Business.id == business_id))
         return result.scalar_one_or_none()
 
-
-    
     async def get_businesses_by_owner_id(self, owner_id: int) -> list[Business]:
         result = await self.db.execute(select(Business).where(Business.owner_id == owner_id))
         return result.scalars().all()

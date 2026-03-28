@@ -30,7 +30,7 @@ class IngredientPriceHistoryRepository:
         ).where(
             IngredientPriceHistory.business_id == business_id
         )
-
+        
         if search:
             query = query.where(
                 IngredientPriceHistory.ingredient.has(
