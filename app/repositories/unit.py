@@ -9,12 +9,8 @@ class UnitRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_by_id(
-        self,
-        unit_id: int,
-    ) -> Optional[Unit]:
-        result = await self.db.execute(select(Unit).where(Unit.id == unit_id))
-        return result.scalar_one_or_none()
+    async def get_by_id(self, unit_id: int) -> Optional[Unit]:
+        return await self.db.get(Unit, unit_id)
     
     async def get_base_units(self) -> List[Unit]:
         result = await self.db.execute(

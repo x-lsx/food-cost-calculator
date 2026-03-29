@@ -15,7 +15,7 @@ class IngredientUpdate(BaseModel):
     name: Optional[str] = Field(None, description="Название ингредиента.")
     current_price: Optional[Decimal] = Field(None, description="Стоимость ингредиента за базовую единицу измерения.")
     
-class IngredientCardResponse(BaseModel):
+class IngredientResponse(BaseModel):
     id: int = Field(..., description="ID ингредиента.")
     name: str = Field(..., description="Название ингредиента.")
     slug: str = Field(..., description="Уникальный слаг для ингредиента.")

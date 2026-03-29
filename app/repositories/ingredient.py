@@ -16,6 +16,19 @@ class IngredientRepository:
         ).where(Ingredient.id == ingredient_id))
         return result.scalar_one_or_none()
 
+    async def name_exists(
+        self,
+        business_id: int,
+        name: str,
+    ) -> bool:
+        result = await self.db.execute(
+            select(Ingredient).where(
+                Ingredient.business_id == business_id,
+                Ingredient.name == name,
+            )
+        )
+        return result.scalar_one_or_none() is not None
+
     async def get_by_slug(self, slug: str) -> Optional[Ingredient]:
         result = await self.db.execute(select(Ingredient).options(
             joinedload(Ingredient.base_unit)
@@ -25,9 +38,9 @@ class IngredientRepository:
     async def list_by_business(
         self,
         business_id: int,
-        search: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
+        search: Optional[str] = None,
     ) -> List[Ingredient]:
         query = select(Ingredient).options(
             joinedload(Ingredient.base_unit)

@@ -19,7 +19,7 @@ class PackagingUpdate(BaseModel):
     current_price: Optional[Decimal] = Field(None,
                                    description="Актуальная цена упаковки.")
     
-class PackagingResponce(BaseModel):
+class PackagingResponse(BaseModel):
     id: int = Field(..., description="ID упаковки.")
     name: str = Field(..., description="Название упаковки.")
     current_price: Decimal = Field(...,

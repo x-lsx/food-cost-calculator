@@ -26,6 +26,20 @@ class PackagingRepository:
             return packaging
         return None
 
+    async def name_exists(
+        self,
+        business_id: int,
+        name: str,
+    ) -> bool:
+        result = await self.db.execute(
+            select(Packaging).where(
+                Packaging.business_id == business_id,
+                Packaging.name == name,
+            )
+        )
+        return result.scalar_one_or_none() is not None
+        
+
     async def list(
         self,
         business_id: int,
@@ -39,7 +53,8 @@ class PackagingRepository:
         if search:
             query = query.where(Packaging.name.ilike(f"%{search}%"))
 
-        query = query.order_by(Packaging.name.asc()).limit(limit).offset(offset)
+        query = query.order_by(Packaging.name.asc()).limit(
+            limit).offset(offset)
 
         result = await self.db.execute(query)
         return result.scalars().all()
@@ -48,16 +63,15 @@ class PackagingRepository:
         new_packaging = Packaging(**create_data)
         self.db.add(new_packaging)
         await self.db.flush()
-        await self.db.refresh(new_packaging)  
+        await self.db.refresh(new_packaging)
         return new_packaging
 
     async def update(
-        self,
-        business_id: int,
-        packaging_id: int,
-        update_data: dict,
+        self, 
+        packaging_id: int, 
+        update_data: dict
     ) -> Optional[Packaging]:
-        packaging = await self.get_by_id_for_business(packaging_id, business_id)
+        packaging = await self.db.get(Packaging, packaging_id)
         if not packaging:
             return None
 
@@ -72,7 +86,7 @@ class PackagingRepository:
     async def delete(self, business_id: int, packaging_id: int) -> bool:
         packaging = await self.get_by_id_for_business(
             packaging_id, business_id
-            )
+        )
         if not packaging:
             return False
 
