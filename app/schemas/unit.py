@@ -9,8 +9,7 @@ class UnitBase(BaseModel):
     type: str = Field(..., description="Тип единицы измерения.")
     is_base: bool = Field(...,
                           description="Является ли единица измерения базовой.")
-    conversion_factor_to_base: Decimal = Field(
-        ..., "Коэффицетн для конвертации в базовую ед.измерения.")
+    conversion_factor_to_base: Decimal = Field(..., description="Коэффицетн для конвертации в базовую ед.измерения.")
 
     
 class UnitCreate(UnitBase):
@@ -25,14 +24,12 @@ class UnitUpdate(BaseModel):
     conversion_factor_to_base: Optional[Decimal] = Field(None,
                             deprecated = "Коэффицетн для конвертации в базовую ед.измерения.")
 
-class UnitResponce(BaseModel):
+class UnitResponse(BaseModel):
     id: int = Field(..., description="ID единицы измерения.")
     name: str = Field(..., description="Название единицы измерения.")
     symbol: str = Field(..., description="Обозначение единицы измерения.")
     type: str = Field(..., description="Тип единицы измерения.")
-    is_base: bool = Field(...,
-                          description="Является ли единица измерения базовой.")
-    conversion_factor_to_base: Decimal = Field(
-        ..., "Коэффицетн для конвертации в базовую ед.измерения.")
+    is_base: bool = Field(..., description="Является ли единица измерения базовой.")
+    conversion_factor_to_base: Decimal = Field(..., description="Коэффицетн для конвертации в базовую ед.измерения.")
     
     model_config = ConfigDict(from_attributes=True)

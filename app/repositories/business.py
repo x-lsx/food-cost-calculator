@@ -12,12 +12,18 @@ class BusinessRepository:
     async def get_business_by_name(
         self,
         user_id: int,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
         search: Optional[str] = None,
     ) -> list[Business]:
         
         query = select(Business).where(Business.owner_id == user_id)
         if search:
             query = query.where(Business.name.ilike(f"%{search}%"))
+        if limit is not None:
+            query = query.limit(limit)
+        if offset is not None:
+            query = query.offset(offset)
         result = await self.db.execute(query)
         return result.scalars().all()
     

@@ -1,4 +1,8 @@
-__all__ = ["User", "Business", "Ingredient", "Unit", "IngredientPriceHistory", "Packaging", "Product"]
+__all__ = ["User", "Business", "Ingredient",
+           "Unit", "IngredientPriceHistory",
+           "Packaging", "Product",
+           "ProductIngredients", "PackagingProducts"
+]
 
 from .user import User
 from .business import Business

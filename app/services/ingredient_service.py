@@ -7,7 +7,7 @@ from typing import List, Optional
 from ..repositories.ingredient import IngredientRepository
 from ..repositories.unit import UnitRepository
 from ..repositories.ingredient_price_history import IngredientPriceHistoryRepository
-from ..schemas.ingredient import IngredientPurchaseCreate, IngredientResponse, IngredientCardResponse
+from ..schemas.ingredient import IngredientPurchaseCreate, IngredientResponse, IngredientResponse
 
 
 class IngredientService:
@@ -98,7 +98,7 @@ class IngredientService:
             
         slug = await self._generate_slug(schema.name)
 
-        current_price = self._calculate_current_price(
+        current_price = await self._calculate_current_price(
             purchase_unit_id=schema.purchase_unit_id,
             purchase_quantity=schema.purchase_quantity,
             purchase_price=schema.purchase_price
@@ -122,5 +122,7 @@ class IngredientService:
             "supplier_name": schema.supplier_name,
         }
         await self.history_repo.create(history_data)
+        
+        ingredient_response = await self.repo.get_by_id(new_ingredient.id)
     
-        return IngredientResponse.model_validate(new_ingredient)
+        return IngredientResponse.model_validate(ingredient_response)
