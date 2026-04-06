@@ -126,3 +126,15 @@ class IngredientService:
         ingredient_response = await self.repo.get_by_id(new_ingredient.id)
     
         return IngredientResponse.model_validate(ingredient_response)
+    
+    async def delete(
+        self,
+        ingredient_id: int,
+    ) -> None:
+        deleted = await self.repo.delete(ingredient_id)
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Ingredient not found."
+            )
+        

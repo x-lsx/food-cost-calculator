@@ -82,13 +82,12 @@ class PackagingService:
     
     async def delete(
         self,
-        business_id: int,
         packaging_id: int,
     ) -> None:
-        deleted = await self.repo.delete(business_id, packaging_id)
+        deleted = await self.repo.delete(packaging_id)
         
         if not deleted:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Упаковка не найдена или у вас нет доступа."
+                detail="Packaging not found."
             )

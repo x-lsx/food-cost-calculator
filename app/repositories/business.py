@@ -80,3 +80,11 @@ class BusinessRepository:
             setattr(business, key, value)
         await self.db.flush()
         return business
+    
+    async def delete(self, business_id: int) -> bool:
+        business = await self.db.get(Business, business_id)
+        if not business:
+            return False
+        await self.db.delete(business)
+        await self.db.flush()
+        return True

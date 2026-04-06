@@ -3,20 +3,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status, HTTPException
 from typing import List, Optional
 
-from ..schemas.ingredient import IngredientFullCreate, IngredientResponse, IngredientCardResponse
+from ..schemas.ingredient import IngredientPriceHistoryCreateResponse, IngredientPriceHistoryResponse, IngredientPriceHistoryCreate
 from ..repositories.ingredient_price_history import IngredientPriceHistoryRepository
 from ..models.ingredients import Ingredient
+
+import logging
 
 class IngredientPriceHistoryService:
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.ingredient_price_history_repository = IngredientPriceHistoryRepository(db)
+        self.repo = IngredientPriceHistoryRepository(db)
+        self.logger = logging.getLogger(__name__)
         
     async def get_history_by_id(
         self,
         history_id: int,
-    ) -> Optional[dict]:
-        history = await self.ingredient_price_history_repository.get_by_id(history_id)
+    ) -> Optional[IngredientPriceHistoryResponse]:
+        history = await self.repo.get_by_id(history_id)
         if not history:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient price history not found")
@@ -25,29 +28,45 @@ class IngredientPriceHistoryService:
     async def list_by_business_id(
         self,
         business_id: int,
+        page: int,
+        size: int,
+        search: Optional[str] = None,
+    ) -> List[IngredientPriceHistoryResponse]:
         
-    ):
-        pass
-    
+        if page < 1:
+            page = 1
+        if size < 1 or size > 20:
+            size = 10
+
+        offset = (page - 1) * size
+        histories = await self.repo.list_by_business(
+            business_id=business_id,
+            limit=page,
+            offset=offset,
+            search=search,
+        )
+        return [IngredientPriceHistoryResponse.model_validate(his) for his in histories]
     
     async def get_history_by_ingredient_id(
         self,
         ingredient_id: int,
-    ) -> List[dict]:
-        histories = await self.ingredient_price_history_repository.get_by_ingredient_id(ingredient_id)
+    ) -> List[IngredientPriceHistoryResponse]:
+        histories = await self.repo.get_by_ingredient_id(ingredient_id)
         return histories
-    
+
     async def create_history(
         self,
         business_id: int,
-        ingredient_data: IngredientFullCreate
-    ) -> IngredientResponse:
-        
-        
-        with self.db.begin():
-            ingredient = Ingredient(
-                name=ingredient_data.name,
-                business_id=business_id,
-                base_unit_id=ingredient_data.base_unit_id,
-                slug=await self._generate_slug(ingredient_data.name)
-            )
+        schema: IngredientPriceHistoryCreate,
+    ) -> IngredientPriceHistoryCreateResponse:
+        """Добавление закупки к существующему ингредиенту."""
+        self.logger.info(f"Creating price history for ingredient ID {schema.ingredient_id} in business ID {business_id}")
+        ingredient = await self.db.get(Ingredient, schema.ingredient_id)
+        if not ingredient:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Ingredient not found")
+        create_data = schema.model_dump()
+        create_data["business_id"] = business_id
+        history = await self.repo.create(create_data)
+        self.logger.info(f"Price history created with ID {history.id} for ingredient ID {schema.ingredient_id}")
+        return history

@@ -83,13 +83,10 @@ class PackagingRepository:
         await self.db.refresh(packaging)
         return packaging
 
-    async def delete(self, business_id: int, packaging_id: int) -> bool:
-        packaging = await self.get_by_id_for_business(
-            packaging_id, business_id
-        )
+    async def delete(self, packaging_id: int) -> bool:
+        packaging = await self.db.get(Packaging, packaging_id)
         if not packaging:
             return False
-
         await self.db.delete(packaging)
         await self.db.flush()
         return True

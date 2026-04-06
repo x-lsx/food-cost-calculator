@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings, BASE_DIR
-from app.routes import (user_routes, auth_routes, business_routes)
+from .routes import (user_routes, auth_routes, business_routes)
+from .utils.logging import configure_logging
+
+configure_logging(level=settings.LOG_LEVEL)
 
 app = FastAPI(
     title=settings.APP_NAME,

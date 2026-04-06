@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel,Field, ConfigDict
 from typing import Optional
 
@@ -18,7 +19,8 @@ class BusinessCreateInternal(BusinessCreate):
 class BusinessUpdate(BaseModel):
     name: Optional[str] = Field(None, description="Навзвание бизнеса.")
     description: Optional[str] = Field(None, description="Описание/доп. инфа.")
-    is_active: Optional[str] = Field(None, description="Активность бизнеса")
+    is_active: Optional[bool] = Field(None, description="Активность бизнеса")
+    updated_at: Optional[datetime] = Field(None, description="Дата последнего обновления бизнеса.")
 
 
 class BusinessResponse(BaseModel):
@@ -28,5 +30,7 @@ class BusinessResponse(BaseModel):
     description: Optional[str] = Field(None, description="Описание/доп. инфа.")
     is_active: bool = Field(..., description="Активность бизнеса")
     owner_id: int = Field(..., description="ID владельца бизнеса.")
+    created_at: datetime = Field(..., description="Дата создания бизнеса.")
+    updated_at: datetime = Field(..., description="Дата последнего обновления бизнеса.")
     
     model_config = ConfigDict(from_attributes=True)

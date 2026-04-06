@@ -1,18 +1,13 @@
 from typing import Optional
-
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.business import Business
-
 from ..schemas.ingredient import IngredientPurchaseCreate, IngredientResponse
-
-
-from ..utils.dependencies import get_current_user, get_current_business_owner
+from ..utils.dependencies import get_current_business_owner
 from ..models.user import User
 from ..core.database import get_db
 from ..services.ingredient_service import IngredientService
-
 
 router = APIRouter(tags=["Ingredients"])    
 
@@ -42,3 +37,12 @@ async def create_ingredient(
         business_id=business.id,
         schema=ingredient_data,
     )
+    
+@router.delete("/{ingredient_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_ingredient(
+    ingredient_id: int,
+    db: AsyncSession = Depends(get_db),
+    business: Business = Depends(get_current_business_owner)
+):
+    service = IngredientService(db)
+    return await service.delete(ingredient_id=ingredient_id)

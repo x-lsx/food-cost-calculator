@@ -2,10 +2,11 @@ from sqlalchemy import DateTime, Integer, String, ForeignKey, Boolean, func, Dat
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
+from ..utils.mixins import TimestampMixin
 from ..core.database import Base
 
 
-class Business(Base):
+class Business(Base, TimestampMixin):
     __tablename__ = "businesses"
     
     id: Mapped[int] = mapped_column(Integer, primary_key = True, autoincrement = True, index = True)
@@ -14,7 +15,6 @@ class Business(Base):
     description: Mapped[str] = mapped_column(String(255), nullable = True)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable = False)
     is_active: Mapped[bool] = mapped_column(Boolean, default = True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone = True), server_default = func.now())
     
     owner: Mapped["User"] = relationship("User", back_populates = "businesses")
     ingredients: Mapped[list["Ingredient"]] = relationship("Ingredient", back_populates = "business", cascade = "all, delete-orphan")

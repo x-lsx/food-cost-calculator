@@ -131,5 +131,19 @@ class BusinessService:
             business_id=business.id,
             update_data=update_dict,
         )
-        
+        await self.db.flush()
+        await self.db.refresh(updated_business)
         return BusinessResponse.model_validate(updated_business)
+
+
+    async def delete(
+            self,
+            business_id: int
+        ) -> bool:
+        deleted = await self.business_repository.delete(business_id=business_id)
+                
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Business not found."
+            )

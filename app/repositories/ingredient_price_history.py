@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.ingredients import IngredientPriceHistory, Ingredient
 
-
 class IngredientPriceHistoryRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -20,9 +19,9 @@ class IngredientPriceHistoryRepository:
     async def list_by_business(
         self,
         business_id: int,
-        search: Optional[str] = None,
         limit: int = 50,
         offset: int = 0,
+        search: Optional[str] = None,
     ) -> List[IngredientPriceHistory]:
         query = select(IngredientPriceHistory).options(
             joinedload(IngredientPriceHistory.ingredient),

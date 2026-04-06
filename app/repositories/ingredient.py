@@ -69,3 +69,11 @@ class IngredientRepository:
         await self.db.flush()
         await self.db.refresh(ingredient)
         return ingredient
+
+    async def delete(self, ingredient_id: int) -> bool:
+        ingredient = await self.db.get(Ingredient, ingredient_id)
+        if not ingredient:
+            return False
+        await self.db.delete(ingredient)
+        await self.db.refresh(ingredient)
+        return True

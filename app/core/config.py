@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str | None = Field(None, alias="REDIS_PASSWORD")
     CACHE_EXPIRE_SECONDS: int = Field(300, alias="CACHE_EXPIRE_SECONDS") 
     
+    LOG_LEVEL: str = Field("INFO", alias="LOG_LEVEL")
+    
     model_config = SettingsConfigDict(
         env_file=(
             BASE_DIR / "env.docker" if os.getenv("ENV") == "docker" else BASE_DIR / "env.local"

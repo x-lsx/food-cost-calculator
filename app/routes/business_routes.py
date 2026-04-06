@@ -1,19 +1,23 @@
 from typing import Optional
-
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.business import Business
-from ..utils.dependencies import get_current_user, get_current_business_owner
 from ..models.user import User
-from ..core.database import get_db
 from ..services.business_service import BusinessService
 from ..schemas.business import BusinessCreate, BusinessResponse, BusinessUpdate
+from ..core.database import get_db
+from ..utils.dependencies import get_current_user, get_current_business_owner
+
 from ..routes.ingredient_routes import router as ingredient_router
+from ..routes.packaging_routes import router as packaging_router
+from ..routes.history_routes import router as history_router
 
 router = APIRouter(prefix="/api/v1/businesses", tags=["businesses"])
 
-router.include_router(ingredient_router, prefix="/{business_slug}/ingredients", tags=["ingredients"])
+router.include_router(ingredient_router, prefix="/{business_slug}/ingredients")
+router.include_router(packaging_router, prefix="/{business_slug}/packaging")
+router.include_router(history_router, prefix="/{business_slug}/history")
 
 @router.get("/", response_model=list[BusinessResponse])
 async def list_businesses(
