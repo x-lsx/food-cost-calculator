@@ -1,6 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel, Field
 
 class PaginationParams(BaseModel):
     page: int = Field(1, ge=1, description="Номер страницы для пагинации")

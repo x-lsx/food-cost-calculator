@@ -7,17 +7,20 @@ from ..models.user import User
 from ..services.business_service import BusinessService
 from ..schemas.business import BusinessCreate, BusinessResponse, BusinessUpdate
 from ..core.database import get_db
-from ..utils.dependencies import get_current_user, get_current_business_owner
+from ..utils.dependencies import get_current_user, user_is_business_owner
 
 from ..routes.ingredient_routes import router as ingredient_router
 from ..routes.packaging_routes import router as packaging_router
 from ..routes.history_routes import router as history_router
+from ..routes.product_routes import router as product_router
 
 router = APIRouter(prefix="/api/v1/businesses", tags=["businesses"])
 
 router.include_router(ingredient_router, prefix="/{business_slug}/ingredients")
 router.include_router(packaging_router, prefix="/{business_slug}/packaging")
 router.include_router(history_router, prefix="/{business_slug}/history")
+router.include_router(product_router, prefix="/{business_slug}/products")
+
 
 @router.get("/", response_model=list[BusinessResponse])
 async def list_businesses(
@@ -50,7 +53,7 @@ async def create_business(
 async def update_business(
     business_slug: str,
     update_data: BusinessUpdate,
-    business: Business = Depends(get_current_business_owner),
+    business: Business = Depends(user_is_business_owner),
     db: AsyncSession = Depends(get_db),
 ):
     service = BusinessService(db)
@@ -63,7 +66,7 @@ async def update_business(
 async def get_business(
     business_slug: str,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner),
+    business: Business = Depends(user_is_business_owner),
 ):
     service = BusinessService(db)
     return await service.get_business_by_slug(

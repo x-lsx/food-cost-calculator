@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from ..models.business import Business
-
+from ..utils.escape_like_param import escape_like_param
 
 class BusinessRepository:
     def __init__(self, db: AsyncSession):
@@ -19,7 +19,8 @@ class BusinessRepository:
         
         query = select(Business).where(Business.owner_id == user_id)
         if search:
-            query = query.where(Business.name.ilike(f"%{search}%"))
+            safe_search = escape_like_param(search)
+            query = query.where(Business.name.ilike(f"%{safe_search}%"))
         if limit is not None:
             query = query.limit(limit)
         if offset is not None:

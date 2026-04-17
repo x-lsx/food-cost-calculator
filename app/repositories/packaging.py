@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.packaging import Packaging, PackagingProducts
-
+from ..models.packaging import Packaging
+from ..utils.escape_like_param import escape_like_param
 
 class PackagingRepository:
     def __init__(self, db: AsyncSession):
@@ -51,7 +51,8 @@ class PackagingRepository:
         query = select(Packaging).where(Packaging.business_id == business_id)
 
         if search:
-            query = query.where(Packaging.name.ilike(f"%{search}%"))
+            safe_search = escape_like_param(search)
+            query = query.where(Packaging.name.ilike(f"%{safe_search}%"))
 
         query = query.order_by(Packaging.name.asc()).limit(
             limit).offset(offset)

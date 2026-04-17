@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.ingredients import Ingredient
-
+from ..utils.escape_like_param import escape_like_param
 
 class IngredientRepository:
     def __init__(self, db: AsyncSession):
@@ -48,7 +48,8 @@ class IngredientRepository:
             Ingredient.business_id == business_id
         )
         if search:
-            query = query.where(Ingredient.name.ilike(f"%{search}%"))
+            safe_search = escape_like_param(search)
+            query = query.where(Ingredient.name.ilike(f"%{safe_search}%"))
         query = query.order_by(Ingredient.name.asc()).limit(limit).offset(offset)
         result = await self.db.execute(query)
         return result.scalars().all()
@@ -75,5 +76,4 @@ class IngredientRepository:
         if not ingredient:
             return False
         await self.db.delete(ingredient)
-        await self.db.refresh(ingredient)
         return True

@@ -15,19 +15,8 @@ class Packaging(Base, TimestampMixin):
     current_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     
-    products: Mapped[list["PackagingProducts"]] = relationship("PackagingProducts",
+    products: Mapped[list["ProductPackagings"]] = relationship("ProductPackagings",
                                                                back_populates="packaging",
                                                                cascade="all, delete-orphan")
     business: Mapped["Business"] = relationship("Business", back_populates="packagings")
     
-class PackagingProducts(Base, TimestampMixin):
-    __tablename__ = "packaging_products"
-    
-    id: Mapped[int] = mapped_column(Integer, primary_key = True, autoincrement = True, index = True)
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable = False)
-    packaging_id: Mapped[int] = mapped_column(ForeignKey("packagings.id"), nullable = False)
-    
-    products: Mapped["Product"] = relationship("Product", back_populates="packagings_products")
-    packaging: Mapped["Packaging"] = relationship("Packaging", back_populates="products")
-    
-    __table_args__ = (UniqueConstraint('product_id', 'packaging_id', name='uix_product_packaging'),)

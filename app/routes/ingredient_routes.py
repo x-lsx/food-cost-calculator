@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.business import Business
 from ..schemas.ingredient import IngredientPurchaseCreate, IngredientResponse
-from ..utils.dependencies import get_current_business_owner
-from ..models.user import User
+from ..utils.dependencies import user_is_business_owner
 from ..core.database import get_db
 from ..services.ingredient_service import IngredientService
 
@@ -14,7 +13,7 @@ router = APIRouter(tags=["Ingredients"])
 @router.get("/", response_model=list[IngredientResponse])
 async def list_ingredients(
     db: AsyncSession = Depends(get_db),
-    business_owner: Business = Depends(get_current_business_owner),
+    business_owner: Business = Depends(user_is_business_owner),
     search: Optional[str] = Query(None, description="Search ingredients by name"),
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=20, description="Number of items per page (1-20)")
@@ -30,7 +29,7 @@ async def list_ingredients(
 async def create_ingredient(
     ingredient_data: IngredientPurchaseCreate,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner)
+    business: Business = Depends(user_is_business_owner)
 ):
     service = IngredientService(db)
     return await service.create(
@@ -42,7 +41,7 @@ async def create_ingredient(
 async def delete_ingredient(
     ingredient_id: int,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner)
+    business: Business = Depends(user_is_business_owner)
 ):
     service = IngredientService(db)
     return await service.delete(ingredient_id=ingredient_id)

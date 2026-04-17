@@ -14,8 +14,8 @@ class Product(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), unique=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    sale_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
-    cost_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    sale_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    cost_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     yield_quantity: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     yield_unit_id: Mapped[int] = mapped_column(ForeignKey("units.id"), nullable=False)
     
@@ -24,7 +24,7 @@ class Product(Base, TimestampMixin):
     ingredients: Mapped[list["ProductIngredients"]] = relationship("ProductIngredients",
                                                                    back_populates="product",
                                                                    cascade="all, delete-orphan")
-    packagings_products: Mapped[list["PackagingProducts"]] = relationship("PackagingProducts",
+    packagings_products: Mapped[list["ProductPackagings"]] = relationship("ProductPackagings",
                                                                           back_populates="products",
                                                                           cascade="all, delete-orphan")
     
@@ -39,10 +39,22 @@ class ProductIngredients(Base, TimestampMixin):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
     ingredient_id: Mapped[int] = mapped_column(ForeignKey("ingredients.id"), nullable=False, index=True)
     quantity: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)  # Сколько нужно
-    unit_id: Mapped[int] = mapped_column(ForeignKey("units.id"), nullable=False)  # В чём измеряется количество
+    # unit_id: Mapped[int] = mapped_column(ForeignKey("units.id"), nullable=False)  # В чём измеряется количество
 
     
     product: Mapped["Product"] = relationship("Product", back_populates="ingredients")
     ingredient: Mapped["Ingredient"] = relationship("Ingredient", back_populates="products")
-    unit: Mapped["Unit"] = relationship("Unit", back_populates="ingredients_unit")
+    # unit: Mapped["Unit"] = relationship("Unit", back_populates="ingredients_unit")
    
+   
+class ProductPackagings(Base, TimestampMixin):
+    __tablename__ = "product_packagings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key = True, autoincrement = True, index = True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable = False)
+    packaging_id: Mapped[int] = mapped_column(ForeignKey("packagings.id"), nullable = False)
+
+    products: Mapped["Product"] = relationship("Product", back_populates="packagings_products")
+    packaging: Mapped["Packaging"] = relationship("Packaging", back_populates="products")
+
+    __table_args__ = (UniqueConstraint('product_id', 'packaging_id', name='uix_product_packaging'),) 

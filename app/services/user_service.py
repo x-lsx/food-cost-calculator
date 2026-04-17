@@ -42,9 +42,3 @@ class UserService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
         return UserResponse.model_validate(user)
 
-    async def get_all_users(self) -> List[UserResponse]:
-        users = await self.user_repository.get_all()
-        if not users:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Пользователи не найдены")
-        return [UserResponse.model_validate(user) for user in users]

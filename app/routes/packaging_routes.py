@@ -1,14 +1,12 @@
 from typing import Optional
-
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..utils.dependencies import user_is_business_owner
+from ..core.database import get_db
+
 from ..models.business import Business
 from ..schemas.packaging import PackagingCreate, PackagingResponse, PackagingUpdate
-from ..models.packaging import Packaging
-
-from ..utils.dependencies import get_current_user, get_current_business_owner
-from ..core.database import get_db
 from ..services.packaging_service import PackagingService
 
 
@@ -17,7 +15,7 @@ router = APIRouter(tags=["Packaging"])
 @router.get("/", response_model=list[PackagingResponse])
 async def list_packaging(
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner),
+    business: Business = Depends(user_is_business_owner),
     search: Optional[str] = Query(None, description="Search packaging by name"),
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=20, description="Number of items per page (1-20)")
@@ -34,7 +32,7 @@ async def list_packaging(
 async def get_packaging(
     packaging_id: int,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner)
+    business: Business = Depends(user_is_business_owner)
 ):
     service = PackagingService(db)
     return await service.get_by_id(
@@ -46,7 +44,7 @@ async def get_packaging(
 async def create_packaging(
     packaging_data: PackagingCreate,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner)
+    business: Business = Depends(user_is_business_owner)
 ):
     service = PackagingService(db)
     return await service.create(
@@ -59,7 +57,7 @@ async def update_packaging(
     packaging_id: int,
     packaging_data: PackagingUpdate,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner)
+    business: Business = Depends(user_is_business_owner)
 ):
     service = PackagingService(db)
     return await service.update(
@@ -72,7 +70,7 @@ async def update_packaging(
 async def delete_packaging(
     packaging_id: int,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner)
+    business: Business = Depends(user_is_business_owner)
 ):
     service = PackagingService(db)
     await service.delete(

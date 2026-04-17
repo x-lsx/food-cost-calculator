@@ -25,17 +25,13 @@ async def get_current_user(
     )
 
     try:
-        # Декодируем токен
         token_data: TokenData = decode_access_token(token)   
 
     except JWTError:
         raise credentials_exception
     except Exception:
         raise credentials_exception
-
-    # Получаем пользователя из БД
-    user = await db.get(User, token_data.user_id)   # если используешь async
-    # user = db.query(User).filter(User.id == token_data.user_id).first()  # если sync
+    user = await db.get(User, token_data.user_id)
 
     if user is None:
         raise credentials_exception
@@ -57,7 +53,7 @@ async def get_current_active_superuser(
     return current_user
 
 
-async def get_current_business_owner(
+async def user_is_business_owner(
     business_slug: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)

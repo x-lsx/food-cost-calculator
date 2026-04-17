@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_db
-from ..utils.dependencies import get_current_business_owner
+from ..utils.dependencies import user_is_business_owner
 from ..models.business import Business
 from ..models.ingredients import IngredientPriceHistory
 from ..schemas.ingredient import IngredientPriceHistoryCreateResponse, IngredientPriceHistoryResponse, IngredientPriceHistoryCreate
@@ -16,7 +16,7 @@ router = APIRouter(tags=["IngredientPriceHistory"])
 @router.get("/", response_model=list[IngredientPriceHistoryResponse])
 async def list(    
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner),
+    business: Business = Depends(user_is_business_owner),
     search: Optional[str] = Query(None, description="Search ingredients by name"),
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=20, description="Number of items per page (1-20)")
@@ -33,7 +33,7 @@ async def list(
 async def create(
     history_data: IngredientPriceHistoryCreate,
     db: AsyncSession = Depends(get_db),
-    business: Business = Depends(get_current_business_owner),
+    business: Business = Depends(user_is_business_owner),
     ):
     service = IngredientPriceHistoryService(db)
     return await service.create_history(

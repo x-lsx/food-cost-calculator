@@ -18,11 +18,7 @@ class Unit(Base, TimestampMixin):
 
     ingredient_price_history: Mapped[list["IngredientPriceHistory"]] = relationship("IngredientPriceHistory", back_populates="purchase_unit")
     ingredients: Mapped[list["Ingredient"]] = relationship("Ingredient", back_populates = "base_unit")
-    ingredients_unit: Mapped[list["ProductIngredients"]] = relationship("ProductIngredients", back_populates="unit")
     yield_product: Mapped[list["Product"]] = relationship("Product", back_populates="yield_unit")
-    
+  
     def __repr__(self) -> str:
         return f"<Unit(id={self.id}, name={self.name})>"
-    
-    #qty_in_base = purchase_quantity * purchase_unit.conversion_factor_to_base   # 25 * 1000 = 25000
-    #current_price = purchase_price / qty_in_base

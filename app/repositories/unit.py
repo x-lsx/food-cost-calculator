@@ -18,6 +18,12 @@ class UnitRepository:
         )
         return result.scalars().all()
     
+    async def get_not_base_units(self) -> List[Unit]:
+        result = await self.db.execute(
+            select(Unit).where(Unit.is_base == False)
+        )
+        return result.scalars().all()
+    
     async def create_unit(
         self,
         unit_data: dict,

@@ -19,7 +19,6 @@ class Base(DeclarativeBase):
     pass
 
 
-
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     session = AsyncSessionLocal()
     try:

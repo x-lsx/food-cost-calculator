@@ -29,6 +29,7 @@ class IngredientResponse(BaseModel):
 class IngredientInResponse(BaseModel):
     id: int = Field(..., description="ID ингредиента.")
     name: str = Field(..., description="Название ингредиента.")
+    base_unit: UnitResponse = Field(..., description="Единица измерения ингредиента.")
     current_price: Decimal = Field(..., description="Стоимость ингредиента за базовую единицу измерения.")
     created_at: datetime = Field(..., description="Дата создания ингредиента.")
     updated_at: datetime = Field(..., description="Дата последнего обновления ингредиента.")
@@ -53,9 +54,9 @@ class IngredientPriceHistoryResponse(BaseModel):
 class IngredientPurchaseCreate(BaseModel):
     name: str = Field(..., description="Название ингредиента.")
     supplier_name: str = Field(..., description="Имя поставщика ингредиента.")
-    purchase_quantity: Decimal = Field(..., description="Количество закупа.")
+    purchase_quantity: Decimal = Field(..., description="Количество закупа.", gt=0)
     purchase_unit_id: int = Field(..., description="Единица измерения при закупке.")
-    purchase_price: Decimal = Field(..., description="Цена закупки.")
+    purchase_price: Decimal = Field(..., description="Цена закупки.", gt=0)
     base_unit_id: int = Field(..., description="Базовая единаца измерения")
     
 class IngredientPriceHistoryCreate(BaseModel):
@@ -81,10 +82,11 @@ class IngredientPriceHistoryCreateResponse(BaseModel):
     id: int = Field(..., description="ID закупки ингредиента.")
     ingredient_id: int = Field(..., description="ID ингредиента.")
     supplier_name: str = Field(..., description="Имя поставщика ингредиента.")
-    purchase_quantity: Decimal = Field(..., description="Количество закупа.")
-    purchase_unit: int = Field(..., description="Единица измерения при закупке.")
-    purchase_price: Decimal = Field(..., description="Цена закупки.")
+    purchase_quantity: Decimal = Field(..., description="Количество закупа.", gt=0)
+    purchase_unit_id: int = Field(..., description="Единица измерения при закупке.")
+    purchase_price: Decimal = Field(..., description="Цена закупки.", gt=0)
     created_at: datetime = Field(..., description="Дата создания закупки.")
     updated_at: datetime = Field(..., description="Дата последнего обновления закупки.")
 
     model_config = ConfigDict(from_attributes=True)
+    
