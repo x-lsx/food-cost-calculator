@@ -13,11 +13,25 @@ Dependencies для rate limiting.
 """
 
 from typing import Callable
+import os
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer
 
 from app.core.rate_limiter import RateLimiter, get_rate_limiter
 from app.utils.dependencies import get_current_user_optional
+
+
+def _get_redis_host_port():
+    """Получает хост и порт Redis из переменных окружения"""
+    host = os.getenv("REDIS_HOST", "localhost")
+    port = int(os.getenv("REDIS_PORT", 6379))
+    return host, port
+
+
+def _get_rate_limiter_with_config():
+    """Wrapper для get_rate_limiter с поддержкой конфигурации из env"""
+    host, port = _get_redis_host_port()
+    return get_rate_limiter(host=host, port=port)
 
 
 # Префиксы для разных типов лимитов
@@ -50,7 +64,7 @@ def get_rate_limiter_dependency(
     
     async def rate_limit_dependency(
         request: Request,
-        rate_limiter: RateLimiter = Depends(get_rate_limiter),
+        rate_limiter: RateLimiter = Depends(_get_rate_limiter_with_config),
     ):
         # Определяем идентификатор: user ID или IP адрес
         if use_user_id:

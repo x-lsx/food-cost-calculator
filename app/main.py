@@ -8,7 +8,7 @@ from sqlalchemy import text
 
 from app.core.config import settings, BASE_DIR
 from app.core.database import AsyncSessionLocal, lifespan as db_lifespan
-from app.core.rate_limiter import RedisManager, check_redis_connection
+from app.core.rate_limiter import RedisManager, check_redis_connection, Redis
 from .routes import (user_routes, auth_routes, business_routes, unit_routes)
 from .utils.logging import configure_logging
 
@@ -41,9 +41,14 @@ async def lifespan(app: FastAPI):
 
     # === Redis ===
     try:
+        # Инициализируем Redis с хостом из конфига
+        redis_host = settings.REDIS_HOST
+        redis_port = settings.REDIS_PORT
+        RedisManager.get_redis(host=redis_host, port=redis_port)
+        
         redis_available = await check_redis_connection()
         if redis_available:
-            logger.info("✅ Redis connection: SUCCESS")
+            logger.info(f"✅ Redis connection: SUCCESS ({redis_host}:{redis_port})")
         else:
             logger.warning("⚠️ Redis connection: FAILED (rate limiting disabled)")
     except Exception as e:

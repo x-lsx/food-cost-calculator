@@ -14,11 +14,11 @@ class RedisManager:
     _instance: Optional[Redis] = None
     
     @classmethod
-    def get_redis(cls) -> Redis:
+    def get_redis(cls, host: str = "localhost", port: int = 6379) -> Redis:
         if cls._instance is None:
             cls._instance = Redis(
-                host="localhost",
-                port=6379,
+                host=host,
+                port=port,
                 decode_responses=True,
             )
         return cls._instance
@@ -148,9 +148,9 @@ class RateLimiter:
 
 
 @lru_cache
-def get_rate_limiter() -> RateLimiter:
+def get_rate_limiter(host: str = "localhost", port: int = 6379) -> RateLimiter:
     """Factory для получения экземпляра RateLimiter"""
-    return RateLimiter(RedisManager.get_redis())
+    return RateLimiter(RedisManager.get_redis(host=host, port=port))
 
 
 async def check_redis_connection() -> bool:
