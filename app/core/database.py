@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker 
 from sqlalchemy.orm import DeclarativeBase
 from typing import AsyncGenerator
-
+from contextlib import asynccontextmanager
 from .config import settings
 
 
@@ -29,3 +29,19 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         raise
     finally:
         await session.close()
+        
+        
+@asynccontextmanager
+async def lifespan(app):
+    try:
+        async with engine.begin() as conn:
+            await conn.execute("SELECT 1")
+        print("✅ PostgreSQL подключен")
+    except Exception as e:
+        print(f"❌ Ошибка подключения к PostgreSQL: {e}")
+        raise
+
+    yield
+
+    await engine.dispose()
+    print("🔌 PostgreSQL отключен")

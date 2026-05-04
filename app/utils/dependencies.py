@@ -1,7 +1,8 @@
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from jose import JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends, status, HTTPException
+from fastapi import Depends, status, HTTPException, Request
+from typing import Optional, Callable
 
 from ..models.business import Business
 from ..models.user import User
@@ -13,6 +14,7 @@ from ..core.database import get_db
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+http_bearer = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -43,6 +45,29 @@ async def get_current_user(
         )
 
     return user
+async def get_current_user_optional(
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+) -> Optional[User]:
+    """
+    Получает текущего пользователя, если токен предоставлен и валиден.
+    Возвращает None если токена нет или он невалиден.
+    Используется для rate limiting когда пользователь может быть не авторизован.
+    """
+    try:
+        credentials = await http_bearer(request)
+        if not credentials:
+            return None
+
+        token = credentials.credentials
+        token_data: TokenData = decode_access_token(token)
+        user = await db.get(User, token_data.user_id)
+
+        if user and user.is_active:
+            return user
+        return None
+    except Exception:
+        return None
 
 async def get_current_active_superuser(
         current_user: User = Depends(get_current_user)) -> User:

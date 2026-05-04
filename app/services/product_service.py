@@ -89,6 +89,7 @@ class ProductService:
     async def update(
         self,
         product_id: int,
+        business_id: int,
         schema: ProductUpdate,
     ) -> ProductResponse:
         existing_product = await self.repo.get_by_id(product_id)
@@ -97,8 +98,14 @@ class ProductService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Product not found."
             )
-        
+        if existing_product.business_id != business_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to update this product."
+            )
+            
         update_data = schema.model_dump(exclude_unset=True)
+        
         if "name" in update_data:
             update_data["slug"] = slugify(update_data["name"])
         

@@ -61,5 +61,6 @@ async def update_product(
     service = ProductService(db)
     return await service.update(
         product_id=product_id,
-        update_data=product_data.model_dump(exclude_unset=True),
+        business_id=business_owner.id,
+        schema=product_data,
     )
