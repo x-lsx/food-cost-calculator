@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from .config import settings
 
 
-engine = create_async_engine(settings.DB_URL, echo = False, future = True)
+engine = create_async_engine(settings.DATABASE_URL, echo = False, future = True)
 
 AsyncSessionLocal = async_sessionmaker(
     engine,

@@ -5,6 +5,7 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
+
 from app.core.database import AsyncSessionLocal, lifespan as db_lifespan
 from app.core.rate_limiter import RedisManager, check_redis_connection
 from app.core.config import BASE_DIR, settings
@@ -17,20 +18,8 @@ configure_logging(level=int(settings.LOG_LEVEL))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Объединенный lifespan контекст для БД и Redis.
-
-    Последовательность:
-    1. Подключение к PostgreSQL
-    2. Подключение к Redis
-    3. Работа приложения
-    4. Отключение Redis
-    5. Отключение PostgreSQL
-    """
     logger = logging.getLogger(__name__)
     logger.info("🚀 Starting Food Cost Calculator API...")
-
-    # === PostgreSQL ===
     try:
         async with AsyncSessionLocal() as session:
             await session.execute(text("SELECT 1"))
@@ -39,7 +28,6 @@ async def lifespan(app: FastAPI):
         logger.error("❌ Database connection: FAILED", exc_info=True)
         raise RuntimeError("Cannot connect to database") from e
 
-    # === Redis ===
     try:
         redis_available = await check_redis_connection()
         if redis_available:
