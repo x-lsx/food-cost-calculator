@@ -14,7 +14,7 @@ lib64/
 parts/
 sdist/
 var/
-*.ini
+
 wheels/
 *.egg-info/
 .installed.cfg
@@ -28,7 +28,6 @@ pip-delete-this-directory.txt
 .coverage
 .pytest_cache/
 htmlcov/
-migrations/
 .venv
 
 venv/
