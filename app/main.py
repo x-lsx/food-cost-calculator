@@ -50,19 +50,6 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error disconnecting Redis: {e}")
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     logger = logging.getLogger(__name__)
-#     logger.info("Starting Food Cost Calculator API...")
-#     try:
-#         async with AsyncSessionLocal() as session:
-#             await session.execute(text("SELECT 1"))
-#         logger.info("Database connection: SUCCESS")
-#     except Exception:
-#         logger.error("Database connection: FAILED", exc_info=True)
-#     yield
-#     logger.info("Shutting down application...")
-
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -94,6 +81,12 @@ app.include_router(business_routes.router)
 app.include_router(unit_routes.router)
 
 
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok"
+    }
+    
 @app.get("/")
 def root():
     return {
