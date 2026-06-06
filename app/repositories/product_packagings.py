@@ -1,6 +1,6 @@
 from typing import Optional, List
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.product import ProductPackagings
@@ -40,7 +40,28 @@ class ProductPackagingsRepository:
         )
         self.db.add(new_packaging)
         await self.db.flush()
-        return new_packaging
+        query = (
+            select(ProductPackagings)
+            .where(ProductPackagings.id == new_packaging.id)
+            .options(joinedload(ProductPackagings.packaging))
+        )
+        result = await self.db.execute(query)
+        return result.scalar_one()
+
+    async def update(self, product_packaging_id: int, packaging_id: int) -> Optional[ProductPackagings]:
+        packaging = await self.get_by_id(product_packaging_id)
+        if not packaging:
+            return None
+
+        packaging.packaging_id = packaging_id
+        await self.db.flush()
+        query = (
+            select(ProductPackagings)
+            .where(ProductPackagings.id == packaging.id)
+            .options(joinedload(ProductPackagings.packaging))
+        )
+        result = await self.db.execute(query)
+        return result.scalar_one()
 
     async def delete(self, product_packaging_id: int) -> bool:
         packaging = await self.get_by_id(product_packaging_id)

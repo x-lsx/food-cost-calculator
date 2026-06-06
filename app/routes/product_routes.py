@@ -9,10 +9,12 @@ from ..models.business import Business
 from ..schemas.product import ProductCreate, ProductResponse, ProductUpdate
 from ..services.product_service import ProductService
 from ..routes.product_ingredient_routes import router as product_ingredient_router
+from ..routes.product_packaging_routes import router as product_packaging_router
 
 
 router = APIRouter(tags=["Products"])
 router.include_router(product_ingredient_router, prefix="/{product_id}/ingredients", tags=["Product Ingredients"])
+router.include_router(product_packaging_router, prefix="/{product_id}/packaging", tags=["Product Packagings"])
 
 @router.get("/", response_model=list[ProductResponse])
 async def list_products(

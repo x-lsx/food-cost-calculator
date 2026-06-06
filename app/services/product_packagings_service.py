@@ -40,6 +40,19 @@ class ProductPackagingsService:
     ) -> ProductPackagingResponse:
         result = await self.repo.create(product_id, packaging_data.packaging_id)
         return ProductPackagingResponse.model_validate(result)
+
+    async def update(
+        self,
+        product_packaging_id: int,
+        packaging_id: int,
+    ) -> ProductPackagingResponse:
+        result = await self.repo.update(product_packaging_id, packaging_id)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product packaging not found."
+            )
+        return ProductPackagingResponse.model_validate(result)
     
     async def delete(
         self,
