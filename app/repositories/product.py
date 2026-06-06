@@ -100,5 +100,6 @@ class ProductRepository:
         for key, value in update_data.items():
             setattr(product, key, value)
         
+        await self.db.flush()
         await self.db.refresh(product)
         return product
