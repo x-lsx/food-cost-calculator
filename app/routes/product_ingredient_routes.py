@@ -47,7 +47,7 @@ async def create_product_ingredient(
 @router.patch("/{product_ingredient_id}", response_model=ProductIngredientResponse, status_code=status.HTTP_200_OK)
 async def update_product_ingredient(
     product_id: int = Path(...),
-    prdouct_ingredient_id: int = Path(...),
+    product_ingredient_id: int = Path(...),
     data: ProductIngredientUpdate = Body(...),
     business_owner: Business = Depends(user_is_business_owner),
     background_tasks: BackgroundTasks = BackgroundTasks(),
@@ -56,7 +56,7 @@ async def update_product_ingredient(
     service = ProductIngredientsService(db)
     product_service = ProductService(db)
     result = await service.update_quantity(
-        product_ingredient_id=prdouct_ingredient_id,
+        product_ingredient_id=product_ingredient_id,
         quantity=data.quantity,
     )
     background_tasks.add_task(product_service.recalc_product_cost, product_id)
