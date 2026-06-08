@@ -58,6 +58,7 @@ class ProductIngredientsRepository:
             return None
         product_ingredient.quantity = quantity
         await self.db.flush()
+        await self.db.refresh(product_ingredient)
         return product_ingredient
 
     async def delete(
