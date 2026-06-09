@@ -6,12 +6,13 @@ import logging
 
 from ..repositories.product_ingredients import ProductIngredientsRepository
 from ..schemas.product import ProductIngredientResponse, ProductIngredientsCardResponse
-from  ..services.product_service import ProductService
+from ..repositories.product import ProductRepository
 
 class ProductIngredientsService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.repo = ProductIngredientsRepository(db)
+        self.product_repository = ProductRepository(db)
         self.logger = logging.getLogger(__name__)
         
     async def get_by_id(self, product_ingredient_id: int):
@@ -27,13 +28,15 @@ class ProductIngredientsService:
         self,
         product_id: int
     ) -> List[ProductIngredientsCardResponse]:
-        result = await self.repo.get_by_product_id(product_id)
-        if not result:
+        product = await self.product_repository.get_by_id(product_id)
+        if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Ingredients for this product not found."
+                detail="Product not found."
             )
-        return [ProductIngredientsCardResponse.model_validate(ing) for ing in result]
+        ingredients = await self.repo.get_by_product_id(product_id)
+        
+        return [ProductIngredientsCardResponse.model_validate(ing) for ing in ingredients]
     
     async def create(
         self,

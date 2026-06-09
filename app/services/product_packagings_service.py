@@ -5,13 +5,14 @@ from typing import List, Optional
 from ..repositories.product_packagings import ProductPackagingsRepository
 from ..schemas.packaging import ProductPackagingResponse, ProductPackagingCreate, ProductPackagingUpdate
 from ..models.product import ProductPackagings
-
+from ..repositories.product import ProductRepository
 
 class ProductPackagingsService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.repo = ProductPackagingsRepository(db)
-    
+        self.product_repository = ProductRepository(db)
+        
     async def get_by_id(self, product_packaging_id: int) -> ProductPackagingResponse:
         result = await self.repo.get_by_id(product_packaging_id)
         if not result:
@@ -25,13 +26,15 @@ class ProductPackagingsService:
         self,
         product_id: int,
     ) -> List[ProductPackagingResponse]:
-        result = await self.repo.get_by_product_id(product_id)
-        if not result:
+        product = await self.product_repository.get_by_id(product_id)
+        if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Packagings for this product not found."
+                detail="Product not found."
             )
-        return [ProductPackagingResponse.model_validate(p) for p in result]
+        packagings = await self.repo.get_by_product_id(product_id)
+       
+        return [ProductPackagingResponse.model_validate(p) for p in packagings]
 
     async def create(
         self,
